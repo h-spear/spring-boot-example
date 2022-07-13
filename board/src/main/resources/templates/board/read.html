@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <div id="modal" tabindex="-1" role="dialog">
+    <div class="modal" tabindex="-1" role="dialog">
       <div class="modal_dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -131,10 +131,9 @@
            loadJSONData();
         })  // end click
 
-        const modal = $('.modal');
+        const modal = document.querySelector(".modal");
         $(".addReply").click(function() {
-          console.log(1);
-          modal.modal('show');
+          modal.classList.add('visible');
 
           $('input[name="replyText"]').val('');
           $('input[name="replyer"]').val('');
@@ -143,28 +142,86 @@
           $(".replySave, .replyClose").show();
          });
 
-        $(".replySave").click(function() {
+        const replySaveBtn = document.querySelector('.replySave');
+        replySaveBtn.addEventListener("click", () => {
           var reply = {
             bno: bno,
-            test: $('input[name="replyText"]').val(),
+            text: $('input[name="replyText"]').val(),
             replyer: $('input[name="replyer"]').val()
           }
           console.log(reply);
 
           $.ajax({
-            url: '/replies/'
+            url: '/replies/',
             method: 'post',
             data: JSON.stringify(reply),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            success: function(data){
+            success: function(data) {
               console.log(data);
-              var newRno = parseInt(data);
-
-              alert(newRno + "번 댓글이 등록되었습니다.")
+              const newRno = parseInt(data);
+              alert(newRno + "번 댓글이 등록되었습니다.");
+              modal.classList.remove('visible');
               loadJSONData();
             }
           })
+        });
+
+        $('.replyList').on("click", ".card-body", function() {
+          var rno = $(this).data("rno");
+          console.log(rno);
+
+          $("input[name='replyText']").val( $(this).find('.card-title').html() );
+          $("input[name='replyer']").val( $(this).find('.card-subtitle').html() );
+          $("input[name='rno']").val(rno);
+
+          $(".modal-footer .btn").hide();
+          $(".replyRemove, .replyModify, .replyClose").show();
+          modal.classList.add('visible');
+        });
+
+        $(".replyRemove").on("click", function() {
+          var rno = $("input[name='rno']").val();
+
+          $.ajax({
+            url: '/replies/' + rno,
+            method: 'delete',
+            success: function(result) {
+              console.log("result: " + result);
+              if (result === 'success') {
+                alert("댓글이 삭제되었습니다");
+                modal.classList.remove('visible');
+                loadJSONData();
+              }
+            }
+          })
+        });
+
+
+        $(".replyModify").click(function() {
+          var rno = $("input[name='rno']").val();
+          var reply = {
+            rno: rno,
+            bno: bno,
+            text: $('input[name="replyText"]').val(),
+            replyer: $('input[name="replyer"]').val()
+          }
+
+          console.log(reply);
+          $.ajax({
+            url: '/replies/' + rno,
+            method: 'put',
+            data: JSON.stringify(reply),
+            contentType: 'application/json; charset=utf-8',
+            success: function(result) {
+              console.log("RESULT: " + result);
+              if (result === 'success') {
+                alert("댓글이 수정되었습니다");
+                modal.classList.remove('visible');
+                loadJSONData();
+              }
+            }
+          });
         });
       });
     </script>

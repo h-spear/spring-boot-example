@@ -19,4 +19,10 @@ public class ReplyServiceTests {
         List<ReplyDTO> replyDTOList = service.getList(bno);
         replyDTOList.forEach(replyDTO -> System.out.println(replyDTO));
     }
+
+    @Test
+    public void removeTest() {
+        Long rno = 2L;
+        service.remove(rno);
+    }
 }

@@ -7,6 +7,7 @@ import org.zerock.board.entity.Board;
 import org.zerock.board.entity.Reply;
 import org.zerock.board.repository.ReplyRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,8 +37,9 @@ public class ReplyServiceImpl implements ReplyService{
         replyRepository.save(reply);
     }
 
+    @Transactional
     @Override
     public void remove(Long rno) {
-        replyRepository.deleteByBno(rno);
+        replyRepository.deleteById(rno);
     }
 }
